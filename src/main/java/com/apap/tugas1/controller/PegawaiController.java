@@ -128,6 +128,11 @@ public class PegawaiController {
         return "ubah-pegawai";
     }
 
+    @RequestMapping(value = "/pegawai/ubah", method = RequestMethod.POST)
+    private String ubahPegawai(@ModelAttribute PegawaiModel pegawai, Model model){
+        return "home";
+    }
+
     @RequestMapping(value = "/pegawai/cari", method = RequestMethod.GET)
     private String hasilCari(@RequestParam(value = "provinsi", required = false) Long idprov,
                              @RequestParam(value = "instansi", required = false) Long idInst,
