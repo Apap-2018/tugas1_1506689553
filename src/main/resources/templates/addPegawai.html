@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Tambah Pegawai</title>
+    <object th:include="fragments/fragment :: css" th:remove="tag"></object>
+    <object th:include="fragments/fragment :: js" th:remove="tag"></object>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+
+<body>
+<nav th:replace="fragments/fragment :: navbar"></nav>
+
+    <div class="container">
+        <br>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Tambah Pegawai</h4>
+                    </div>
+                    <div class="card-body">
+                        <form th:action ="@{/pegawai/tambah}" th:object="${pegawai}" method="POST">
+                            <div class="form-group">
+                                <label><b>Nama</b></label>
+                                <input type = "text" class="form-control" name = "nama" placeholder="Nama" required="required"/>
+                            </div>
+
+                            <div class="form-group">
+                                <label><b>Tempat Lahir</b></label>
+                                <input type="text" class="form-control" name = "tempatLahir" placeholder="Tempat Lahir" required="required" />
+                            </div>
+
+                            <div class="form-group">
+                                <label><b>Tanggal Lahir</b></label>
+                                <input type="date" class="form-control" name="tanggalLahir" placeholder="Tanggal Lahir" required="required"/>
+                            </div>
+
+                            <div class="form-group">
+                                <label><b>Tahun Masuk</b></label>
+                                <input type = "number" class="form-control" name = "tahunMasuk" placeholder="Tahun Masuk" required="required"/>
+                            </div>
+
+                            <div class="form-group">
+                                <label><b>Provinsi</b></label>
+                                <select  th:value="${listProvinsi}" class="form-control" name="provinsi" id="provinsi" required="required" >
+                                    <option disabled="disabled" selected="selected" >
+                                        --Pilih Provinsi--
+                                    </option>
+                                    <option th:each="provinsi : ${listProvinsi}"
+                                            th:value="${provinsi.getId()}"
+                                            th:text="${provinsi.getNama()}">
+                                    </option>
+                                </select>
+
+                            </div>
+
+                            <div class="form-group">
+                                <label><b>Nama Instansi</b></label>
+                                <select  name="idInstansi" class="form-control" id="instansi" required="required" >
+                                    <option disabled="disabled" selected="selected" >
+                                        --Pilih Instansi--
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label><b>Jabatan</b></label>
+                                <div id = "listJabatan">
+                                    <select class="form-control" name="listJabatan[0].idJabatan" id="jabatan" required="required" >
+                                        <option disabled="disabled" selected="selected" >
+                                            --Pilih Jabatan--
+                                        </option>
+                                        <option th:each="jabatan : ${listJabatan}"
+                                                th:value="${jabatan.getId()}"
+                                                th:text="${jabatan.getNamaJabatan()}">
+                                        </option>
+                                    </select>
+                                    <br>
+                                </div>
+                                <div>
+                                    <button id="tambahJabatan" type="button">Tambah jabatan lainnya</button>
+                                </div>
+                            </div>
+                            <br>
+                            <button type="submit" class="btn btn-primary">Simpan</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    $(document).ready( function () {
+        var idxJabatan = 0;
+        $("#provinsi").change(function(){
+            var idProv = $(this).val();
+            $.ajax({
+                method : "GET",
+                data : {id:idProv},
+                url : "/pegawai/instansi",
+                dataType : "json",
+                success: function(data){
+                    var obj = JSON.stringify(data);
+                    var objs = JSON.parse(obj);
+                    $("#instansi").empty();
+                    $("#instansi").append("<option disabled=\"disabled\" selected=\"selected\">--Pilih Instansi--</option>");
+                    for (x in objs){
+                        console.log(objs[x].nama);
+                        $("#instansi").append("<option value = "+ "'"+objs[x].id+"'"+">" + objs[x].nama +"</option>");
+                        console.log("<option value = "+ "'"+objs[x].id+"'"+">" + objs[x].nama +"</option>");
+                    }
+                }
+
+            });
+        });
+
+        $("#tambahJabatan").click(function(){
+            $.ajax({
+                method : "GET",
+                url : "/pegawai/getjabatan",
+                dataType : "json",
+                success: function(data){
+                    var jbt = JSON.stringify(data);
+                    var jabatans = JSON.parse(jbt);
+                    console.log(jabatan);
+                    idxJabatan++;
+                    var selectHtml = '<select class="form-control" id="jabatan" name="listJabatan['+ idxJabatan +'].idJabatan">\n';
+
+                    var optionsHtml = '<option value=null>--Pilih Jabatan--</option>';
+
+                    $.each( jabatans, function(i, jabatan ) {
+                        optionsHtml += '<option value=' + jabatan.id + '>' + jabatan.namaJabatan + '</option>';
+                    });
+
+                    var closingSelectHtml = '</select><br>';
+
+                    $( "#listJabatan" ).append(selectHtml + optionsHtml + closingSelectHtml);
+                }
+
+            });
+        });
+    });
+
+</script>
+</html>
+
